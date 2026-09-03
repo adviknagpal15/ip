@@ -1,8 +1,5 @@
 import java.util.Scanner;
 
-/**
- * A chatbot that echoes commands until the user says goodbye.
- */
 public class Dash {
     public static void main(String[] args) {
         String banner =
@@ -22,6 +19,9 @@ public class Dash {
         System.out.println(line);
 
         Scanner scanner = new Scanner(System.in);
+        String[] tasks = new String[100];
+        int taskCount = 0;
+
         while (true) {
             String command = scanner.nextLine();
             System.out.println(line);
@@ -32,7 +32,16 @@ public class Dash {
                 break;
             }
 
-            System.out.println(" " + command);
+            if (command.equals("list")) {
+                for (int i = 0; i < taskCount; i++) {
+                    System.out.println(" " + (i + 1) + ". " + tasks[i]);
+                }
+            } else {
+                tasks[taskCount] = command;
+                taskCount++;
+                System.out.println(" added: " + command);
+            }
+
             System.out.println(line);
         }
     }
