@@ -3,7 +3,7 @@ package dash;
 /**
  * Represents one task and its completion state.
  */
-public class Task {
+public abstract class Task {
     /** The text describing what needs to be done. */
     private final String description;
 
@@ -39,11 +39,7 @@ public class Task {
         return isDone ? "X" : " ";
     }
 
-    /**
-     * Returns this task in the format shown by the chatbot.
-     *
-     * @return The status icon and description of this task.
-     */
+    /** Returns this task in the format shown by the chatbot. */
     @Override
     public String toString() {
         return "[" + getStatusIcon() + "] " + description;
