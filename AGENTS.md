@@ -34,6 +34,12 @@ For every Java code change or Java code review in this repository, you must use
 the project-local `seedu-java-coding-standard` skill and follow its rules.
 This requirement applies to all production and test Java code.
 
+## UI testing
+
+After every code update, review and update `test/ui-test-plan.md` when the
+change affects the command-line interface or its expected output. Then invoke
+the project-local `test-ui` skill and report its test-session transcript.
+
 ## Git
 
 For every future commit in this repository, you must use the project-local
