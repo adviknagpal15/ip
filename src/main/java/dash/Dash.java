@@ -73,36 +73,83 @@ public class Dash {
                 break;
             }
 
-            if (command.equals(LIST_COMMAND)) {
-                System.out.println(" Here are the tasks in your list:");
-                for (int i = 0; i < taskCount; i++) {
-                    System.out.println(" " + (i + 1) + "." + tasks[i]);
-                }
-            } else if (command.startsWith(TODO_COMMAND_PREFIX)) {
-                tasks[taskCount] = new Todo(getArgument(command, TODO_COMMAND_PREFIX));
-                taskCount++;
-                printTaskAdded(tasks[taskCount - 1], taskCount);
-            } else if (command.startsWith(DEADLINE_COMMAND_PREFIX)) {
-                tasks[taskCount] = createDeadline(command);
-                taskCount++;
-                printTaskAdded(tasks[taskCount - 1], taskCount);
-            } else if (command.startsWith(EVENT_COMMAND_PREFIX)) {
-                tasks[taskCount] = createEvent(command);
-                taskCount++;
-                printTaskAdded(tasks[taskCount - 1], taskCount);
-            } else if (command.startsWith(MARK_COMMAND_PREFIX)) {
-                int taskIndex = getTaskIndex(command, MARK_COMMAND_PREFIX);
-                tasks[taskIndex].markAsDone();
-                System.out.println(" Nice! I've marked this task as done:");
-                System.out.println("   " + tasks[taskIndex]);
-            } else if (command.startsWith(UNMARK_COMMAND_PREFIX)) {
-                int taskIndex = getTaskIndex(command, UNMARK_COMMAND_PREFIX);
-                tasks[taskIndex].markAsNotDone();
-                System.out.println(" OK, I've marked this task as not done yet:");
-                System.out.println("   " + tasks[taskIndex]);
-            }
-
+            taskCount = handleCommand(command, tasks, taskCount);
             System.out.println(DIVIDER);
+        }
+    }
+
+    /**
+     * Handles one non-exit command and returns the updated task count.
+     *
+     * @param command The complete command entered by the user.
+     * @param tasks The tasks currently stored by the chatbot.
+     * @param taskCount The number of tasks currently stored.
+     * @return The number of tasks after handling the command.
+     */
+    private static int handleCommand(String command, Task[] tasks, int taskCount) {
+        if (command.equals(LIST_COMMAND)) {
+            printTaskList(tasks, taskCount);
+        } else if (command.startsWith(TODO_COMMAND_PREFIX)) {
+            taskCount = addTask(tasks, taskCount,
+                    new Todo(getArgument(command, TODO_COMMAND_PREFIX)));
+        } else if (command.startsWith(DEADLINE_COMMAND_PREFIX)) {
+            taskCount = addTask(tasks, taskCount, createDeadline(command));
+        } else if (command.startsWith(EVENT_COMMAND_PREFIX)) {
+            taskCount = addTask(tasks, taskCount, createEvent(command));
+        } else if (command.startsWith(MARK_COMMAND_PREFIX)) {
+            markTask(tasks, command, MARK_COMMAND_PREFIX, true);
+        } else if (command.startsWith(UNMARK_COMMAND_PREFIX)) {
+            markTask(tasks, command, UNMARK_COMMAND_PREFIX, false);
+        }
+        return taskCount;
+    }
+
+    /**
+     * Prints every task currently stored by the chatbot.
+     *
+     * @param tasks The tasks currently stored by the chatbot.
+     * @param taskCount The number of tasks currently stored.
+     */
+    private static void printTaskList(Task[] tasks, int taskCount) {
+        System.out.println(" Here are the tasks in your list:");
+        for (int i = 0; i < taskCount; i++) {
+            System.out.println(" " + (i + 1) + "." + tasks[i]);
+        }
+    }
+
+    /**
+     * Adds a task, prints its confirmation, and returns the new task count.
+     *
+     * @param tasks The tasks currently stored by the chatbot.
+     * @param taskCount The number of tasks currently stored.
+     * @param task The task to add.
+     * @return The number of tasks after adding the task.
+     */
+    private static int addTask(Task[] tasks, int taskCount, Task task) {
+        tasks[taskCount] = task;
+        int newTaskCount = taskCount + 1;
+        printTaskAdded(task, newTaskCount);
+        return newTaskCount;
+    }
+
+    /**
+     * Changes a task's completion status and prints its confirmation.
+     *
+     * @param tasks The tasks currently stored by the chatbot.
+     * @param command The complete command entered by the user.
+     * @param commandPrefix The command text preceding the task number.
+     * @param isDone The completion status to set.
+     */
+    private static void markTask(Task[] tasks, String command, String commandPrefix, boolean isDone) {
+        int taskIndex = getTaskIndex(command, commandPrefix);
+        if (isDone) {
+            tasks[taskIndex].markAsDone();
+            System.out.println(" Nice! I've marked this task as done:");
+            System.out.println("   " + tasks[taskIndex]);
+        } else {
+            tasks[taskIndex].markAsNotDone();
+            System.out.println(" OK, I've marked this task as not done yet:");
+            System.out.println("   " + tasks[taskIndex]);
         }
     }
 
