@@ -1,4 +1,4 @@
-package dash;
+package dash.task;
 
 /**
  * Represents a task without date or time information.

@@ -1,4 +1,4 @@
-package dash;
+package dash.task;
 
 /**
  * Represents one task and its completion state.

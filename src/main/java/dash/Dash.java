@@ -2,6 +2,11 @@ package dash;
 
 import java.util.Scanner;
 
+import dash.task.Deadline;
+import dash.task.Event;
+import dash.task.Task;
+import dash.task.Todo;
+
 /**
  * Runs the Dash command-line chatbot.
  */
