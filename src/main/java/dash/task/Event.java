@@ -1,4 +1,4 @@
-package dash;
+package dash.task;
 
 /**
  * Represents a task with a specified start and end date or time.

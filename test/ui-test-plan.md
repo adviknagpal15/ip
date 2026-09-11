@@ -108,3 +108,84 @@ ____________________________________________________________
 Bye. Hope to see you again soon!
 ____________________________________________________________
 ```
+
+## Test 3: Reject invalid user commands
+
+Aim: Verifies that empty task details, unknown commands, missing deadline or
+event markers, and invalid mark numbers produce error messages instead of
+crashing or silently ignoring the input.
+
+### Input
+
+```text
+todo
+blah
+deadline
+deadline return book
+deadline /by Sunday
+event project meeting
+event project meeting /from Mon 2pm
+mark 1
+todo borrow book
+mark abc
+mark 5
+list
+bye
+```
+
+### Expected output
+
+```text
+ ____              _     
+|  _ \  __ _ ___| |__  
+| | | |/ _` / __| '_ \ 
+| |_| | (_| \__ \ | | |
+|____/ \__,_|___/_| |_|
+
+____________________________________________________________
+Hello! I'm Dash.
+What can I do for you?
+____________________________________________________________
+____________________________________________________________
+ A to-do needs a description. Try: todo borrow book
+____________________________________________________________
+____________________________________________________________
+ I don't recognize that command. Try list, todo, deadline, event, mark, unmark, or bye.
+____________________________________________________________
+____________________________________________________________
+ A deadline needs a /by time. Try: deadline return book /by Sunday
+____________________________________________________________
+____________________________________________________________
+ A deadline needs a /by time. Try: deadline return book /by Sunday
+____________________________________________________________
+____________________________________________________________
+ A deadline needs a description before /by.
+____________________________________________________________
+____________________________________________________________
+ An event needs /from and /to times. Try: event meeting /from Mon 2pm /to 4pm
+____________________________________________________________
+____________________________________________________________
+ An event needs /from and /to times. Try: event meeting /from Mon 2pm /to 4pm
+____________________________________________________________
+____________________________________________________________
+ There is no task numbered 1.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] borrow book
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ That is not a valid task number. Try something like: mark 1
+____________________________________________________________
+____________________________________________________________
+ There is no task numbered 5.
+____________________________________________________________
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] borrow book
+____________________________________________________________
+____________________________________________________________
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
