@@ -4,10 +4,7 @@ package dash;
  * Represents a task with a specified start and end date or time.
  */
 public class Event extends Task {
-    /** The start date or time entered by the user. */
     private final String from;
-
-    /** The end date or time entered by the user. */
     private final String to;
 
     /**

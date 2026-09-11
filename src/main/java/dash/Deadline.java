@@ -4,7 +4,6 @@ package dash;
  * Represents a task that must be completed by a specified date or time.
  */
 public class Deadline extends Task {
-    /** The due date or time entered by the user. */
     private final String by;
 
     /**
