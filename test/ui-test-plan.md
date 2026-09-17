@@ -150,7 +150,7 @@ ____________________________________________________________
  A to-do needs a description. Try: todo borrow book
 ____________________________________________________________
 ____________________________________________________________
- I don't recognize that command. Try list, todo, deadline, event, mark, unmark, or bye.
+ I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, or bye.
 ____________________________________________________________
 ____________________________________________________________
  A deadline needs a /by time. Try: deadline return book /by Sunday
@@ -184,6 +184,97 @@ ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][ ] borrow book
+____________________________________________________________
+____________________________________________________________
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
+## Test 4: Delete tasks and reject invalid delete inputs
+
+Aim: Verifies that tasks can be removed by index, the remaining task count is
+updated correctly, and invalid delete attempts show informative error messages.
+
+### Input
+
+```text
+todo borrow book
+deadline return book /by Sunday
+event project meeting /from Mon 2pm /to 4pm
+delete 2
+list
+delete
+delete abc
+delete 0
+delete 5
+delete 1
+delete 1
+list
+bye
+```
+
+### Expected output
+
+```text
+ ____              _     
+|  _ \  __ _ ___| |__  
+| | | |/ _` / __| '_ \ 
+| |_| | (_| \__ \ | | |
+|____/ \__,_|___/_| |_|
+
+____________________________________________________________
+Hello! I'm Dash.
+What can I do for you?
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] borrow book
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [D][ ] return book (by: Sunday)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [E][ ] project meeting (from: Mon 2pm to: 4pm)
+ Now you have 3 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Noted. I've removed this task:
+   [D][ ] return book (by: Sunday)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] borrow book
+ 2.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+____________________________________________________________
+____________________________________________________________
+ Please give the task number to delete. Try: delete 1
+____________________________________________________________
+____________________________________________________________
+ That is not a valid task number. Try something like: delete 1
+____________________________________________________________
+____________________________________________________________
+ There is no task numbered 0.
+____________________________________________________________
+____________________________________________________________
+ There is no task numbered 5.
+____________________________________________________________
+____________________________________________________________
+ Noted. I've removed this task:
+   [T][ ] borrow book
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Noted. I've removed this task:
+   [E][ ] project meeting (from: Mon 2pm to: 4pm)
+ Now you have 0 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Here are the tasks in your list:
 ____________________________________________________________
 ____________________________________________________________
 Bye. Hope to see you again soon!

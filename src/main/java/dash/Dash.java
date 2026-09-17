@@ -1,5 +1,6 @@
 package dash;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import dash.task.Deadline;
@@ -18,7 +19,7 @@ public class Dash {
     private static final String EVENT_COMMAND = "event";
     private static final String MARK_COMMAND = "mark";
     private static final String UNMARK_COMMAND = "unmark";
-    private static final int TASK_LIMIT = 100;
+    private static final String DELETE_COMMAND = "delete";
     private static final String DIVIDER = "____________________________________________________________";
     private static final String BY_SEPARATOR = " /by ";
     private static final String FROM_SEPARATOR = " /from ";
@@ -35,8 +36,7 @@ public class Dash {
                 + "| | | |/ _` / __| '_ \\ \n"
                 + "| |_| | (_| \\__ \\ | | |\n"
                 + "|____/ \\__,_|___/_| |_|\n";
-        Task[] tasks = new Task[TASK_LIMIT];
-        int taskCount = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
 
         System.out.println(banner);
         System.out.println(DIVIDER);
@@ -56,7 +56,7 @@ public class Dash {
             }
 
             try {
-                taskCount = handleCommand(command, tasks, taskCount);
+                handleCommand(command, tasks);
             } catch (DashException exception) {
                 System.out.println(" " + exception.getMessage());
             }
@@ -64,62 +64,70 @@ public class Dash {
         }
     }
 
-    private static int handleCommand(String command, Task[] tasks, int taskCount) throws DashException {
+    private static void handleCommand(String command, ArrayList<Task> tasks) throws DashException {
         String[] parts = command.split(" ", 2);
         String keyword = parts[0];
         String arguments = parts.length > 1 ? parts[1] : "";
 
         if (keyword.equals(LIST_COMMAND)) {
-            printTaskList(tasks, taskCount);
+            printTaskList(tasks);
         } else if (keyword.equals(TODO_COMMAND)) {
-            taskCount = addTask(tasks, taskCount, createTodo(arguments));
+            addTask(tasks, createTodo(arguments));
         } else if (keyword.equals(DEADLINE_COMMAND)) {
-            taskCount = addTask(tasks, taskCount, createDeadline(arguments));
+            addTask(tasks, createDeadline(arguments));
         } else if (keyword.equals(EVENT_COMMAND)) {
-            taskCount = addTask(tasks, taskCount, createEvent(arguments));
+            addTask(tasks, createEvent(arguments));
         } else if (keyword.equals(MARK_COMMAND)) {
-            markTask(tasks, taskCount, arguments, true);
+            markTask(tasks, arguments, true);
         } else if (keyword.equals(UNMARK_COMMAND)) {
-            markTask(tasks, taskCount, arguments, false);
+            markTask(tasks, arguments, false);
+        } else if (keyword.equals(DELETE_COMMAND)) {
+            deleteTask(tasks, arguments);
         } else {
             throw new DashException(
-                    "I don't recognize that command. Try list, todo, deadline, event, mark, unmark, or bye.");
+                    "I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, or bye.");
         }
-        return taskCount;
     }
 
-    private static void printTaskList(Task[] tasks, int taskCount) {
+    private static void printTaskList(ArrayList<Task> tasks) {
         System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println(" " + (i + 1) + "." + tasks[i]);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println(" " + (i + 1) + "." + tasks.get(i));
         }
     }
 
-    private static int addTask(Task[] tasks, int taskCount, Task task) throws DashException {
-        if (taskCount >= TASK_LIMIT) {
-            throw new DashException("The task list is full. I can only keep " + TASK_LIMIT + " tasks.");
-        }
-        tasks[taskCount] = task;
-        int newTaskCount = taskCount + 1;
-        printTaskAdded(task, newTaskCount);
-        return newTaskCount;
+    private static void addTask(ArrayList<Task> tasks, Task task) {
+        tasks.add(task);
+        printTaskAdded(task, tasks.size());
     }
 
-    private static void markTask(Task[] tasks, int taskCount, String arguments, boolean isDone) throws DashException {
-        int taskIndex = getTaskIndex(arguments, taskCount);
+    private static void deleteTask(ArrayList<Task> tasks, String arguments) throws DashException {
+        int taskIndex = getTaskIndex(arguments, tasks.size(), DELETE_COMMAND);
+        Task removedTask = tasks.remove(taskIndex);
+        System.out.println(" Noted. I've removed this task:");
+        System.out.println("   " + removedTask);
+        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+    }
+
+    private static void markTask(ArrayList<Task> tasks, String arguments, boolean isDone) throws DashException {
+        int taskIndex = getTaskIndex(arguments, tasks.size(), isDone ? MARK_COMMAND : UNMARK_COMMAND);
+        Task task = tasks.get(taskIndex);
         if (isDone) {
-            tasks[taskIndex].markAsDone();
+            task.markAsDone();
             System.out.println(" Nice! I've marked this task as done:");
-            System.out.println("   " + tasks[taskIndex]);
+            System.out.println("   " + task);
         } else {
-            tasks[taskIndex].markAsNotDone();
+            task.markAsNotDone();
             System.out.println(" OK, I've marked this task as not done yet:");
-            System.out.println("   " + tasks[taskIndex]);
+            System.out.println("   " + task);
         }
     }
 
-    private static int getTaskIndex(String arguments, int taskCount) throws DashException {
+    private static int getTaskIndex(String arguments, int taskCount, String command) throws DashException {
         if (arguments.isBlank()) {
+            if (command.equals(DELETE_COMMAND)) {
+                throw new DashException("Please give the task number to delete. Try: delete 1");
+            }
             throw new DashException("Please give the task number to mark or unmark. Try: mark 1");
         }
         try {
@@ -129,6 +137,9 @@ public class Dash {
             }
             return taskNumber - 1;
         } catch (NumberFormatException exception) {
+            if (command.equals(DELETE_COMMAND)) {
+                throw new DashException("That is not a valid task number. Try something like: delete 1");
+            }
             throw new DashException("That is not a valid task number. Try something like: mark 1");
         }
     }
