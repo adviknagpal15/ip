@@ -1,6 +1,11 @@
 package dash;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import dash.task.Deadline;
@@ -24,6 +29,7 @@ public class Dash {
     private static final String BY_SEPARATOR = " /by ";
     private static final String FROM_SEPARATOR = " /from ";
     private static final String TO_SEPARATOR = " /to ";
+    private static final String DATA_FILE_PATH = "./data/dash.txt";
 
     /**
      * Starts the chatbot and processes commands until the user enters {@code bye}.
@@ -36,7 +42,7 @@ public class Dash {
                 + "| | | |/ _` / __| '_ \\ \n"
                 + "| |_| | (_| \\__ \\ | | |\n"
                 + "|____/ \\__,_|___/_| |_|\n";
-        ArrayList<Task> tasks = new ArrayList<>();
+        ArrayList<Task> tasks = loadTasks();
 
         System.out.println(banner);
         System.out.println(DIVIDER);
@@ -99,6 +105,7 @@ public class Dash {
     private static void addTask(ArrayList<Task> tasks, Task task) {
         tasks.add(task);
         printTaskAdded(task, tasks.size());
+        saveTasks(tasks);
     }
 
     private static void deleteTask(ArrayList<Task> tasks, String arguments) throws DashException {
@@ -107,6 +114,7 @@ public class Dash {
         System.out.println(" Noted. I've removed this task:");
         System.out.println("   " + removedTask);
         System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+        saveTasks(tasks);
     }
 
     private static void markTask(ArrayList<Task> tasks, String arguments, boolean isDone) throws DashException {
@@ -121,6 +129,7 @@ public class Dash {
             System.out.println(" OK, I've marked this task as not done yet:");
             System.out.println("   " + task);
         }
+        saveTasks(tasks);
     }
 
     private static int getTaskIndex(String arguments, int taskCount, String command) throws DashException {
@@ -145,26 +154,27 @@ public class Dash {
     }
 
     private static Todo createTodo(String arguments) throws DashException {
-        if (arguments.isBlank()) {
+        String description = arguments.trim();
+        if (description.isEmpty()) {
             throw new DashException("A to-do needs a description. Try: todo borrow book");
         }
-        return new Todo(arguments);
+        return new Todo(description);
     }
 
     private static Deadline createDeadline(String arguments) throws DashException {
         int byIndex = arguments.indexOf(BY_SEPARATOR);
         if (byIndex == -1) {
-            if (arguments.startsWith("/by")) {
+            if (arguments.startsWith("/by ") || arguments.equals("/by")) {
                 throw new DashException("A deadline needs a description before /by.");
             }
             throw new DashException("A deadline needs a /by time. Try: deadline return book /by Sunday");
         }
-        String description = arguments.substring(0, byIndex);
-        String by = arguments.substring(byIndex + BY_SEPARATOR.length());
-        if (description.isBlank()) {
+        String description = arguments.substring(0, byIndex).trim();
+        String by = arguments.substring(byIndex + BY_SEPARATOR.length()).trim();
+        if (description.isEmpty()) {
             throw new DashException("A deadline needs a description before /by.");
         }
-        if (by.isBlank()) {
+        if (by.isEmpty()) {
             throw new DashException("A deadline needs a /by time. Try: deadline return book /by Sunday");
         }
         return new Deadline(description, by);
@@ -174,16 +184,19 @@ public class Dash {
         int fromIndex = arguments.indexOf(FROM_SEPARATOR);
         int toIndex = arguments.indexOf(TO_SEPARATOR);
         if (fromIndex == -1 || toIndex == -1 || fromIndex > toIndex) {
+            if (arguments.startsWith("/from ") || arguments.equals("/from")) {
+                throw new DashException("An event needs a description before /from.");
+            }
             throw new DashException(
                     "An event needs /from and /to times. Try: event meeting /from Mon 2pm /to 4pm");
         }
-        String description = arguments.substring(0, fromIndex);
-        String from = arguments.substring(fromIndex + FROM_SEPARATOR.length(), toIndex);
-        String to = arguments.substring(toIndex + TO_SEPARATOR.length());
-        if (description.isBlank()) {
+        String description = arguments.substring(0, fromIndex).trim();
+        String from = arguments.substring(fromIndex + FROM_SEPARATOR.length(), toIndex).trim();
+        String to = arguments.substring(toIndex + TO_SEPARATOR.length()).trim();
+        if (description.isEmpty()) {
             throw new DashException("An event needs a description before /from.");
         }
-        if (from.isBlank() || to.isBlank()) {
+        if (from.isEmpty() || to.isEmpty()) {
             throw new DashException(
                     "An event needs /from and /to times. Try: event meeting /from Mon 2pm /to 4pm");
         }
@@ -194,5 +207,105 @@ public class Dash {
         System.out.println(" Got it. I've added this task:");
         System.out.println("   " + task);
         System.out.println(" Now you have " + taskCount + " tasks in the list.");
+    }
+
+    private static ArrayList<Task> loadTasks() {
+        ArrayList<Task> tasks = new ArrayList<>();
+        Path path = Paths.get(DATA_FILE_PATH);
+        if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            return tasks;
+        }
+
+        try {
+            List<String> lines = Files.readAllLines(path);
+            for (String line : lines) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                Task task = parseTaskFromFile(line);
+                if (task != null) {
+                    tasks.add(task);
+                }
+            }
+        } catch (IOException exception) {
+            System.out.println(" Error reading tasks from file: " + exception.getMessage());
+        }
+        return tasks;
+    }
+
+    private static Task parseTaskFromFile(String line) {
+        if (line == null || line.isBlank()) {
+            return null;
+        }
+
+        String[] parts = line.split(" \\| ");
+        if (parts.length < 3) {
+            return null;
+        }
+
+        String type = parts[0].trim();
+        String status = parts[1].trim();
+        if (!status.equals("0") && !status.equals("1")) {
+            return null;
+        }
+        boolean isDone = status.equals("1");
+        String description = parts[2].trim();
+        if (description.isEmpty()) {
+            return null;
+        }
+
+        Task task;
+        switch (type) {
+        case "T":
+            if (parts.length != 3) {
+                return null;
+            }
+            task = new Todo(description);
+            break;
+        case "D":
+            if (parts.length != 4) {
+                return null;
+            }
+            String by = parts[3].trim();
+            if (by.isEmpty()) {
+                return null;
+            }
+            task = new Deadline(description, by);
+            break;
+        case "E":
+            if (parts.length != 5) {
+                return null;
+            }
+            String from = parts[3].trim();
+            String to = parts[4].trim();
+            if (from.isEmpty() || to.isEmpty()) {
+                return null;
+            }
+            task = new Event(description, from, to);
+            break;
+        default:
+            return null;
+        }
+
+        if (isDone) {
+            task.markAsDone();
+        }
+        return task;
+    }
+
+    private static void saveTasks(ArrayList<Task> tasks) {
+        try {
+            Path path = Paths.get(DATA_FILE_PATH);
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
+            List<String> lines = new ArrayList<>();
+            for (Task task : tasks) {
+                lines.add(task.toFileFormat());
+            }
+            Files.write(path, lines);
+        } catch (IOException exception) {
+            System.out.println(" Error saving tasks to file: " + exception.getMessage());
+        }
     }
 }

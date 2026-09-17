@@ -28,6 +28,24 @@ public abstract class Task {
     }
 
     /**
+     * Returns whether this task is marked as done.
+     *
+     * @return {@code true} if completed; otherwise {@code false}.
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
+    /**
+     * Returns the description of this task.
+     *
+     * @return The task description.
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
      * Returns the icon used to show this task's completion state.
      *
      * @return {@code X} when complete; otherwise a space.
@@ -35,6 +53,13 @@ public abstract class Task {
     public String getStatusIcon() {
         return isDone ? "X" : " ";
     }
+
+    /**
+     * Returns the formatted string representation of this task for file storage.
+     *
+     * @return The string representation of this task to save to the hard disk.
+     */
+    public abstract String toFileFormat();
 
     @Override
     public String toString() {
