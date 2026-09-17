@@ -59,17 +59,18 @@ Bye. Hope to see you again soon!
 ____________________________________________________________
 ```
 
-## Test 2: Preserve free-form deadline text
+## Test 2: Preserve free-form deadline text and persist loaded tasks
 
-Aim: Verifies that a deadline's date or time remains an unparsed string and
-that marking and unmarking continue to work for a deadline.
+Aim: Verifies that tasks from the previous session are loaded on startup, a
+new deadline's date or time remains an unparsed string, and marking and unmarking
+continue to work.
 
 ### Input
 
 ```text
 deadline do homework /by no idea :-p
-mark 1
-unmark 1
+mark 4
+unmark 4
 list
 bye
 ```
@@ -90,7 +91,7 @@ ____________________________________________________________
 ____________________________________________________________
  Got it. I've added this task:
    [D][ ] do homework (by: no idea :-p)
- Now you have 1 tasks in the list.
+ Now you have 4 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
  Nice! I've marked this task as done:
@@ -102,7 +103,10 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[D][ ] do homework (by: no idea :-p)
+ 1.[T][X] borrow book
+ 2.[D][ ] return book (by: Sunday)
+ 3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+ 4.[D][ ] do homework (by: no idea :-p)
 ____________________________________________________________
 ____________________________________________________________
 Bye. Hope to see you again soon!
@@ -125,10 +129,10 @@ deadline return book
 deadline /by Sunday
 event project meeting
 event project meeting /from Mon 2pm
-mark 1
-todo borrow book
+mark 10
+todo join sports club
 mark abc
-mark 5
+mark 10
 list
 bye
 ```
@@ -168,22 +172,26 @@ ____________________________________________________________
  An event needs /from and /to times. Try: event meeting /from Mon 2pm /to 4pm
 ____________________________________________________________
 ____________________________________________________________
- There is no task numbered 1.
+ There is no task numbered 10.
 ____________________________________________________________
 ____________________________________________________________
  Got it. I've added this task:
-   [T][ ] borrow book
- Now you have 1 tasks in the list.
+   [T][ ] join sports club
+ Now you have 5 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
  That is not a valid task number. Try something like: mark 1
 ____________________________________________________________
 ____________________________________________________________
- There is no task numbered 5.
+ There is no task numbered 10.
 ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[T][ ] borrow book
+ 1.[T][X] borrow book
+ 2.[D][ ] return book (by: Sunday)
+ 3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+ 4.[D][ ] do homework (by: no idea :-p)
+ 5.[T][ ] join sports club
 ____________________________________________________________
 ____________________________________________________________
 Bye. Hope to see you again soon!

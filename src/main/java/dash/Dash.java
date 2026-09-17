@@ -43,7 +43,7 @@ public class Dash {
                 + "| |_| | (_| \\__ \\ | | |\n"
                 + "|____/ \\__,_|___/_| |_|\n";
         Task[] tasks = new Task[TASK_LIMIT];
-        int taskCount = 0;
+        int taskCount = loadTasks(tasks);
 
         System.out.println(banner);
         System.out.println(DIVIDER);
@@ -143,26 +143,27 @@ public class Dash {
     }
 
     private static Todo createTodo(String arguments) throws DashException {
-        if (arguments.isBlank()) {
+        String description = arguments.trim();
+        if (description.isEmpty()) {
             throw new DashException("A to-do needs a description. Try: todo borrow book");
         }
-        return new Todo(arguments);
+        return new Todo(description);
     }
 
     private static Deadline createDeadline(String arguments) throws DashException {
         int byIndex = arguments.indexOf(BY_SEPARATOR);
         if (byIndex == -1) {
-            if (arguments.startsWith("/by")) {
+            if (arguments.startsWith("/by ") || arguments.equals("/by")) {
                 throw new DashException("A deadline needs a description before /by.");
             }
             throw new DashException("A deadline needs a /by time. Try: deadline return book /by Sunday");
         }
-        String description = arguments.substring(0, byIndex);
-        String by = arguments.substring(byIndex + BY_SEPARATOR.length());
-        if (description.isBlank()) {
+        String description = arguments.substring(0, byIndex).trim();
+        String by = arguments.substring(byIndex + BY_SEPARATOR.length()).trim();
+        if (description.isEmpty()) {
             throw new DashException("A deadline needs a description before /by.");
         }
-        if (by.isBlank()) {
+        if (by.isEmpty()) {
             throw new DashException("A deadline needs a /by time. Try: deadline return book /by Sunday");
         }
         return new Deadline(description, by);
@@ -172,16 +173,19 @@ public class Dash {
         int fromIndex = arguments.indexOf(FROM_SEPARATOR);
         int toIndex = arguments.indexOf(TO_SEPARATOR);
         if (fromIndex == -1 || toIndex == -1 || fromIndex > toIndex) {
+            if (arguments.startsWith("/from ") || arguments.equals("/from")) {
+                throw new DashException("An event needs a description before /from.");
+            }
             throw new DashException(
                     "An event needs /from and /to times. Try: event meeting /from Mon 2pm /to 4pm");
         }
-        String description = arguments.substring(0, fromIndex);
-        String from = arguments.substring(fromIndex + FROM_SEPARATOR.length(), toIndex);
-        String to = arguments.substring(toIndex + TO_SEPARATOR.length());
-        if (description.isBlank()) {
+        String description = arguments.substring(0, fromIndex).trim();
+        String from = arguments.substring(fromIndex + FROM_SEPARATOR.length(), toIndex).trim();
+        String to = arguments.substring(toIndex + TO_SEPARATOR.length()).trim();
+        if (description.isEmpty()) {
             throw new DashException("An event needs a description before /from.");
         }
-        if (from.isBlank() || to.isBlank()) {
+        if (from.isEmpty() || to.isEmpty()) {
             throw new DashException(
                     "An event needs /from and /to times. Try: event meeting /from Mon 2pm /to 4pm");
         }
@@ -192,6 +196,94 @@ public class Dash {
         System.out.println(" Got it. I've added this task:");
         System.out.println("   " + task);
         System.out.println(" Now you have " + taskCount + " tasks in the list.");
+    }
+
+    private static int loadTasks(Task[] tasks) {
+        Path path = Paths.get(DATA_FILE_PATH);
+        if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            return 0;
+        }
+
+        int count = 0;
+        try {
+            List<String> lines = Files.readAllLines(path);
+            for (String line : lines) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                if (count >= TASK_LIMIT) {
+                    break;
+                }
+                Task task = parseTaskFromFile(line);
+                if (task != null) {
+                    tasks[count] = task;
+                    count++;
+                }
+            }
+        } catch (IOException exception) {
+            System.out.println(" Error reading tasks from file: " + exception.getMessage());
+        }
+        return count;
+    }
+
+    private static Task parseTaskFromFile(String line) {
+        if (line == null || line.isBlank()) {
+            return null;
+        }
+
+        String[] parts = line.split(" \\| ");
+        if (parts.length < 3) {
+            return null;
+        }
+
+        String type = parts[0].trim();
+        String status = parts[1].trim();
+        if (!status.equals("0") && !status.equals("1")) {
+            return null;
+        }
+        boolean isDone = status.equals("1");
+        String description = parts[2].trim();
+        if (description.isEmpty()) {
+            return null;
+        }
+
+        Task task;
+        switch (type) {
+        case "T":
+            if (parts.length != 3) {
+                return null;
+            }
+            task = new Todo(description);
+            break;
+        case "D":
+            if (parts.length != 4) {
+                return null;
+            }
+            String by = parts[3].trim();
+            if (by.isEmpty()) {
+                return null;
+            }
+            task = new Deadline(description, by);
+            break;
+        case "E":
+            if (parts.length != 5) {
+                return null;
+            }
+            String from = parts[3].trim();
+            String to = parts[4].trim();
+            if (from.isEmpty() || to.isEmpty()) {
+                return null;
+            }
+            task = new Event(description, from, to);
+            break;
+        default:
+            return null;
+        }
+
+        if (isDone) {
+            task.markAsDone();
+        }
+        return task;
     }
 
     private static void saveTasks(Task[] tasks, int taskCount) {
