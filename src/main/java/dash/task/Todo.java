@@ -14,6 +14,11 @@ public class Todo extends Task {
     }
 
     @Override
+    public String toFileFormat() {
+        return "T | " + (isDone() ? "1" : "0") + " | " + getDescription();
+    }
+
+    @Override
     public String toString() {
         return "[T]" + super.toString();
     }

@@ -1,5 +1,11 @@
 package dash;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import dash.task.Deadline;
@@ -23,6 +29,7 @@ public class Dash {
     private static final String BY_SEPARATOR = " /by ";
     private static final String FROM_SEPARATOR = " /from ";
     private static final String TO_SEPARATOR = " /to ";
+    private static final String DATA_FILE_PATH = "./data/dash.txt";
 
     /**
      * Starts the chatbot and processes commands until the user enters {@code bye}.
@@ -102,6 +109,7 @@ public class Dash {
         tasks[taskCount] = task;
         int newTaskCount = taskCount + 1;
         printTaskAdded(task, newTaskCount);
+        saveTasks(tasks, newTaskCount);
         return newTaskCount;
     }
 
@@ -116,6 +124,7 @@ public class Dash {
             System.out.println(" OK, I've marked this task as not done yet:");
             System.out.println("   " + tasks[taskIndex]);
         }
+        saveTasks(tasks, taskCount);
     }
 
     private static int getTaskIndex(String arguments, int taskCount) throws DashException {
@@ -183,5 +192,21 @@ public class Dash {
         System.out.println(" Got it. I've added this task:");
         System.out.println("   " + task);
         System.out.println(" Now you have " + taskCount + " tasks in the list.");
+    }
+
+    private static void saveTasks(Task[] tasks, int taskCount) {
+        try {
+            Path path = Paths.get(DATA_FILE_PATH);
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
+            List<String> lines = new ArrayList<>();
+            for (int i = 0; i < taskCount; i++) {
+                lines.add(tasks[i].toFileFormat());
+            }
+            Files.write(path, lines);
+        } catch (IOException exception) {
+            System.out.println(" Error saving tasks to file: " + exception.getMessage());
+        }
     }
 }
