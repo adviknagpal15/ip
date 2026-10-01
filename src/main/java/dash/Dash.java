@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import dash.task.Deadline;
 import dash.task.Event;
@@ -25,114 +24,108 @@ public class Dash {
     private static final String MARK_COMMAND = "mark";
     private static final String UNMARK_COMMAND = "unmark";
     private static final String DELETE_COMMAND = "delete";
-    private static final String DIVIDER = "____________________________________________________________";
     private static final String BY_SEPARATOR = " /by ";
     private static final String FROM_SEPARATOR = " /from ";
     private static final String TO_SEPARATOR = " /to ";
     private static final String DATA_FILE_PATH = "./data/dash.txt";
 
+    private final Ui ui;
+    private final ArrayList<Task> tasks;
+
+    /**
+     * Initializes the chatbot and loads existing tasks from storage.
+     */
+    public Dash() {
+        this.ui = new Ui();
+        this.tasks = loadTasks();
+    }
+
     /**
      * Starts the chatbot and processes commands until the user enters {@code bye}.
-     *
-     * @param args Command-line arguments, which are not used.
      */
-    public static void main(String[] args) {
-        String banner = " ____              _     \n"
-                + "|  _ \\  __ _ ___| |__  \n"
-                + "| | | |/ _` / __| '_ \\ \n"
-                + "| |_| | (_| \\__ \\ | | |\n"
-                + "|____/ \\__,_|___/_| |_|\n";
-        ArrayList<Task> tasks = loadTasks();
+    public void run() {
+        ui.showWelcome();
 
-        System.out.println(banner);
-        System.out.println(DIVIDER);
-        System.out.println("Hello! I'm Dash.");
-        System.out.println("What can I do for you?");
-        System.out.println(DIVIDER);
-
-        Scanner scanner = new Scanner(System.in);
         while (true) {
-            String command = scanner.nextLine();
-            System.out.println(DIVIDER);
+            String command = ui.readCommand();
+            ui.showLine();
 
             if (command.equals(BYE_COMMAND)) {
-                System.out.println("Bye. Hope to see you again soon!");
-                System.out.println(DIVIDER);
+                ui.showGoodbye();
+                ui.showLine();
                 break;
             }
 
             try {
-                handleCommand(command, tasks);
+                handleCommand(command);
             } catch (DashException exception) {
-                System.out.println(" " + exception.getMessage());
+                ui.showError(exception.getMessage());
             }
-            System.out.println(DIVIDER);
+            ui.showLine();
         }
     }
 
-    private static void handleCommand(String command, ArrayList<Task> tasks) throws DashException {
+    /**
+     * Starts the application.
+     *
+     * @param args Command-line arguments, which are not used.
+     */
+    public static void main(String[] args) {
+        new Dash().run();
+    }
+
+    private void handleCommand(String command) throws DashException {
         String[] parts = command.split(" ", 2);
         String keyword = parts[0];
         String arguments = parts.length > 1 ? parts[1] : "";
 
         if (keyword.equals(LIST_COMMAND)) {
-            printTaskList(tasks);
+            ui.showTaskList(tasks);
         } else if (keyword.equals(TODO_COMMAND)) {
-            addTask(tasks, createTodo(arguments));
+            addTask(createTodo(arguments));
         } else if (keyword.equals(DEADLINE_COMMAND)) {
-            addTask(tasks, createDeadline(arguments));
+            addTask(createDeadline(arguments));
         } else if (keyword.equals(EVENT_COMMAND)) {
-            addTask(tasks, createEvent(arguments));
+            addTask(createEvent(arguments));
         } else if (keyword.equals(MARK_COMMAND)) {
-            markTask(tasks, arguments, true);
+            markTask(arguments, true);
         } else if (keyword.equals(UNMARK_COMMAND)) {
-            markTask(tasks, arguments, false);
+            markTask(arguments, false);
         } else if (keyword.equals(DELETE_COMMAND)) {
-            deleteTask(tasks, arguments);
+            deleteTask(arguments);
         } else {
             throw new DashException(
                     "I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, or bye.");
         }
     }
 
-    private static void printTaskList(ArrayList<Task> tasks) {
-        System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println(" " + (i + 1) + "." + tasks.get(i));
-        }
-    }
-
-    private static void addTask(ArrayList<Task> tasks, Task task) {
+    private void addTask(Task task) {
         tasks.add(task);
-        printTaskAdded(task, tasks.size());
-        saveTasks(tasks);
+        ui.showTaskAdded(task, tasks.size());
+        saveTasks();
     }
 
-    private static void deleteTask(ArrayList<Task> tasks, String arguments) throws DashException {
+    private void deleteTask(String arguments) throws DashException {
         int taskIndex = getTaskIndex(arguments, tasks.size(), DELETE_COMMAND);
         Task removedTask = tasks.remove(taskIndex);
-        System.out.println(" Noted. I've removed this task:");
-        System.out.println("   " + removedTask);
-        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
-        saveTasks(tasks);
+        ui.showTaskRemoved(removedTask, tasks.size());
+        saveTasks();
     }
 
-    private static void markTask(ArrayList<Task> tasks, String arguments, boolean isDone) throws DashException {
+    private void markTask(String arguments, boolean isDone) throws DashException {
         int taskIndex = getTaskIndex(arguments, tasks.size(), isDone ? MARK_COMMAND : UNMARK_COMMAND);
         Task task = tasks.get(taskIndex);
         if (isDone) {
             task.markAsDone();
-            System.out.println(" Nice! I've marked this task as done:");
-            System.out.println("   " + task);
+            ui.showTaskMarked(task);
         } else {
             task.markAsNotDone();
-            System.out.println(" OK, I've marked this task as not done yet:");
-            System.out.println("   " + task);
+            ui.showTaskUnmarked(task);
         }
-        saveTasks(tasks);
+        saveTasks();
     }
 
-    private static int getTaskIndex(String arguments, int taskCount, String command) throws DashException {
+    private int getTaskIndex(String arguments, int taskCount, String command) throws DashException {
         if (arguments.isBlank()) {
             if (command.equals(DELETE_COMMAND)) {
                 throw new DashException("Please give the task number to delete. Try: delete 1");
@@ -153,7 +146,7 @@ public class Dash {
         }
     }
 
-    private static Todo createTodo(String arguments) throws DashException {
+    private Todo createTodo(String arguments) throws DashException {
         String description = arguments.trim();
         if (description.isEmpty()) {
             throw new DashException("A to-do needs a description. Try: todo borrow book");
@@ -161,7 +154,7 @@ public class Dash {
         return new Todo(description);
     }
 
-    private static Deadline createDeadline(String arguments) throws DashException {
+    private Deadline createDeadline(String arguments) throws DashException {
         int byIndex = arguments.indexOf(BY_SEPARATOR);
         if (byIndex == -1) {
             if (arguments.startsWith("/by ") || arguments.equals("/by")) {
@@ -180,7 +173,7 @@ public class Dash {
         return new Deadline(description, by);
     }
 
-    private static Event createEvent(String arguments) throws DashException {
+    private Event createEvent(String arguments) throws DashException {
         int fromIndex = arguments.indexOf(FROM_SEPARATOR);
         int toIndex = arguments.indexOf(TO_SEPARATOR);
         if (fromIndex == -1 || toIndex == -1 || fromIndex > toIndex) {
@@ -203,17 +196,11 @@ public class Dash {
         return new Event(description, from, to);
     }
 
-    private static void printTaskAdded(Task task, int taskCount) {
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + task);
-        System.out.println(" Now you have " + taskCount + " tasks in the list.");
-    }
-
-    private static ArrayList<Task> loadTasks() {
-        ArrayList<Task> tasks = new ArrayList<>();
+    private ArrayList<Task> loadTasks() {
+        ArrayList<Task> loadedTasks = new ArrayList<>();
         Path path = Paths.get(DATA_FILE_PATH);
         if (!Files.exists(path) || !Files.isRegularFile(path)) {
-            return tasks;
+            return loadedTasks;
         }
 
         try {
@@ -224,16 +211,16 @@ public class Dash {
                 }
                 Task task = parseTaskFromFile(line);
                 if (task != null) {
-                    tasks.add(task);
+                    loadedTasks.add(task);
                 }
             }
         } catch (IOException exception) {
-            System.out.println(" Error reading tasks from file: " + exception.getMessage());
+            ui.showLoadingError(exception.getMessage());
         }
-        return tasks;
+        return loadedTasks;
     }
 
-    private static Task parseTaskFromFile(String line) {
+    private Task parseTaskFromFile(String line) {
         if (line == null || line.isBlank()) {
             return null;
         }
@@ -293,7 +280,7 @@ public class Dash {
         return task;
     }
 
-    private static void saveTasks(ArrayList<Task> tasks) {
+    private void saveTasks() {
         try {
             Path path = Paths.get(DATA_FILE_PATH);
             if (path.getParent() != null) {
@@ -305,7 +292,7 @@ public class Dash {
             }
             Files.write(path, lines);
         } catch (IOException exception) {
-            System.out.println(" Error saving tasks to file: " + exception.getMessage());
+            ui.showSavingError(exception.getMessage());
         }
     }
 }
