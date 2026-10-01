@@ -9,7 +9,7 @@ type-specific display format and that completed tasks retain their status.
 
 ```text
 todo borrow book
-deadline return book /by Sunday
+deadline return book /by 2019-10-15
 event project meeting /from Mon 2pm /to 4pm
 mark 1
 list
@@ -36,7 +36,7 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Got it. I've added this task:
-   [D][ ] return book (by: Sunday)
+   [D][ ] return book (by: Oct 15 2019)
  Now you have 2 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
@@ -51,7 +51,7 @@ ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][X] borrow book
- 2.[D][ ] return book (by: Sunday)
+ 2.[D][ ] return book (by: Oct 15 2019)
  3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
 ____________________________________________________________
 ____________________________________________________________
@@ -62,13 +62,13 @@ ____________________________________________________________
 ## Test 2: Preserve free-form deadline text and persist loaded tasks
 
 Aim: Verifies that tasks from the previous session are loaded on startup, a
-new deadline's date or time remains an unparsed string, and marking and unmarking
+new deadline's date is stored and formatted as a date, and marking and unmarking
 continue to work.
 
 ### Input
 
 ```text
-deadline do homework /by no idea :-p
+deadline do homework /by 2019-12-31
 mark 4
 unmark 4
 list
@@ -90,23 +90,23 @@ What can I do for you?
 ____________________________________________________________
 ____________________________________________________________
  Got it. I've added this task:
-   [D][ ] do homework (by: no idea :-p)
+   [D][ ] do homework (by: Dec 31 2019)
  Now you have 4 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
  Nice! I've marked this task as done:
-   [D][X] do homework (by: no idea :-p)
+   [D][X] do homework (by: Dec 31 2019)
 ____________________________________________________________
 ____________________________________________________________
  OK, I've marked this task as not done yet:
-   [D][ ] do homework (by: no idea :-p)
+   [D][ ] do homework (by: Dec 31 2019)
 ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][X] borrow book
- 2.[D][ ] return book (by: Sunday)
+ 2.[D][ ] return book (by: Oct 15 2019)
  3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
- 4.[D][ ] do homework (by: no idea :-p)
+ 4.[D][ ] do homework (by: Dec 31 2019)
 ____________________________________________________________
 ____________________________________________________________
 Bye. Hope to see you again soon!
@@ -126,7 +126,7 @@ todo
 blah
 deadline
 deadline return book
-deadline /by Sunday
+deadline /by 2019-10-15
 event project meeting
 event project meeting /from Mon 2pm
 mark 10
@@ -157,10 +157,10 @@ ____________________________________________________________
  I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, or bye.
 ____________________________________________________________
 ____________________________________________________________
- A deadline needs a /by time. Try: deadline return book /by Sunday
+ A deadline needs a /by date. Try: deadline return book /by 2019-10-15
 ____________________________________________________________
 ____________________________________________________________
- A deadline needs a /by time. Try: deadline return book /by Sunday
+ A deadline needs a /by date. Try: deadline return book /by 2019-10-15
 ____________________________________________________________
 ____________________________________________________________
  A deadline needs a description before /by.
@@ -188,9 +188,9 @@ ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][X] borrow book
- 2.[D][ ] return book (by: Sunday)
+ 2.[D][ ] return book (by: Oct 15 2019)
  3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
- 4.[D][ ] do homework (by: no idea :-p)
+ 4.[D][ ] do homework (by: Dec 31 2019)
  5.[T][ ] join sports club
 ____________________________________________________________
 ____________________________________________________________
@@ -240,12 +240,12 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Noted. I've removed this task:
-   [D][ ] do homework (by: no idea :-p)
+   [D][ ] do homework (by: Dec 31 2019)
  Now you have 3 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
  Noted. I've removed this task:
-   [D][ ] return book (by: Sunday)
+   [D][ ] return book (by: Oct 15 2019)
  Now you have 2 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________

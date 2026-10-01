@@ -1,20 +1,36 @@
 package dash.task;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 /**
- * Represents a task that must be completed by a specified date or time.
+ * Represents a task that must be completed by a specified date.
  */
 public class Deadline extends Task {
-    private final String by;
+    private static final DateTimeFormatter OUTPUT_FORMAT =
+            DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH);
+
+    private final LocalDate by;
 
     /**
-     * Creates an incomplete deadline with its description and due date or time.
+     * Creates an incomplete deadline with its description and due date.
      *
      * @param description The text describing the task.
-     * @param by The due date or time.
+     * @param by The due date.
      */
-    public Deadline(String description, String by) {
+    public Deadline(String description, LocalDate by) {
         super(description);
         this.by = by;
+    }
+
+    /**
+     * Returns the due date of this deadline.
+     *
+     * @return The due date.
+     */
+    public LocalDate getBy() {
+        return by;
     }
 
     @Override
@@ -24,6 +40,6 @@ public class Deadline extends Task {
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        return "[D]" + super.toString() + " (by: " + by.format(OUTPUT_FORMAT) + ")";
     }
 }

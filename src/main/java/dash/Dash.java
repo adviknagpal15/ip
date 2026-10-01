@@ -1,5 +1,7 @@
 package dash;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 import dash.task.Deadline;
@@ -173,7 +175,8 @@ public class Dash {
             if (arguments.startsWith("/by ") || arguments.equals("/by")) {
                 throw new DashException("A deadline needs a description before /by.");
             }
-            throw new DashException("A deadline needs a /by time. Try: deadline return book /by Sunday");
+            throw new DashException(
+                    "A deadline needs a /by date. Try: deadline return book /by 2019-10-15");
         }
         String description = arguments.substring(0, byIndex).trim();
         String by = arguments.substring(byIndex + BY_SEPARATOR.length()).trim();
@@ -181,9 +184,16 @@ public class Dash {
             throw new DashException("A deadline needs a description before /by.");
         }
         if (by.isEmpty()) {
-            throw new DashException("A deadline needs a /by time. Try: deadline return book /by Sunday");
+            throw new DashException(
+                    "A deadline needs a /by date. Try: deadline return book /by 2019-10-15");
         }
-        return new Deadline(description, by);
+        try {
+            LocalDate byDate = LocalDate.parse(by);
+            return new Deadline(description, byDate);
+        } catch (DateTimeParseException exception) {
+            throw new DashException(
+                    "Please provide a valid date in yyyy-mm-dd format. Try: deadline return book /by 2019-10-15");
+        }
     }
 
     private Event createEvent(String arguments) throws DashException {
