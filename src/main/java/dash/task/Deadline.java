@@ -34,6 +34,11 @@ public class Deadline extends Task {
     }
 
     @Override
+    public boolean occursOn(LocalDate date) {
+        return by.equals(date);
+    }
+
+    @Override
     public String toFileFormat() {
         return "D | " + (isDone() ? "1" : "0") + " | " + getDescription() + " | " + by;
     }

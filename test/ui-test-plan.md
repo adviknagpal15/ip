@@ -154,7 +154,7 @@ ____________________________________________________________
  A to-do needs a description. Try: todo borrow book
 ____________________________________________________________
 ____________________________________________________________
- I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, or bye.
+ I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, on, or bye.
 ____________________________________________________________
 ____________________________________________________________
  A deadline needs a /by date. Try: deadline return book /by 2019-10-15
@@ -277,6 +277,70 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
+____________________________________________________________
+____________________________________________________________
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
+## Test 5: Filter tasks occurring on a specific date
+
+Aim: Verifies that the on command filters deadlines and events occurring on a
+given date, reports when no tasks match, and rejects missing or malformed dates.
+
+### Input
+
+```text
+deadline return book /by 2019-10-15
+event project conference /from 2019-10-15 /to 2019-10-17
+on 2019-10-15
+on 2019-10-16
+on 2025-01-01
+on
+on not-a-date
+bye
+```
+
+### Expected output
+
+```text
+ ____              _     
+|  _ \  __ _ ___| |__  
+| | | |/ _` / __| '_ \ 
+| |_| | (_| \__ \ | | |
+|____/ \__,_|___/_| |_|
+
+____________________________________________________________
+Hello! I'm Dash.
+What can I do for you?
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [D][ ] return book (by: Oct 15 2019)
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [E][ ] project conference (from: 2019-10-15 to: 2019-10-17)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Here are the tasks occurring on Oct 15 2019:
+ 1.[D][ ] return book (by: Oct 15 2019)
+ 2.[E][ ] project conference (from: 2019-10-15 to: 2019-10-17)
+____________________________________________________________
+____________________________________________________________
+ Here are the tasks occurring on Oct 16 2019:
+ 1.[E][ ] project conference (from: 2019-10-15 to: 2019-10-17)
+____________________________________________________________
+____________________________________________________________
+ There are no tasks occurring on Jan 01 2025.
+____________________________________________________________
+____________________________________________________________
+ Please specify a date in yyyy-mm-dd format. Try: on 2019-10-15
+____________________________________________________________
+____________________________________________________________
+ Please provide a valid date in yyyy-mm-dd format. Try: on 2019-10-15
 ____________________________________________________________
 ____________________________________________________________
 Bye. Hope to see you again soon!

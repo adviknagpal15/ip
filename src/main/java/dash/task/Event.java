@@ -1,5 +1,8 @@
 package dash.task;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 /**
  * Represents a task with a specified start and end date or time.
  */
@@ -18,6 +21,21 @@ public class Event extends Task {
         super(description);
         this.from = from;
         this.to = to;
+    }
+
+    @Override
+    public boolean occursOn(LocalDate date) {
+        try {
+            LocalDate fromDate = LocalDate.parse(from);
+            try {
+                LocalDate toDate = LocalDate.parse(to);
+                return !date.isBefore(fromDate) && !date.isAfter(toDate);
+            } catch (DateTimeParseException exception) {
+                return fromDate.equals(date);
+            }
+        } catch (DateTimeParseException exception) {
+            return false;
+        }
     }
 
     @Override

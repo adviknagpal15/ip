@@ -21,6 +21,7 @@ public class Dash {
     private static final String MARK_COMMAND = "mark";
     private static final String UNMARK_COMMAND = "unmark";
     private static final String DELETE_COMMAND = "delete";
+    private static final String ON_COMMAND = "on";
     private static final String BY_SEPARATOR = " /by ";
     private static final String FROM_SEPARATOR = " /from ";
     private static final String TO_SEPARATOR = " /to ";
@@ -108,9 +109,30 @@ public class Dash {
             markTask(arguments, false);
         } else if (keyword.equals(DELETE_COMMAND)) {
             deleteTask(arguments);
+        } else if (keyword.equals(ON_COMMAND)) {
+            findTasksOnDate(arguments);
         } else {
             throw new DashException(
-                    "I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, or bye.");
+                    "I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, on, or bye.");
+        }
+    }
+
+    private void findTasksOnDate(String arguments) throws DashException {
+        if (arguments.isBlank()) {
+            throw new DashException("Please specify a date in yyyy-mm-dd format. Try: on 2019-10-15");
+        }
+        try {
+            LocalDate date = LocalDate.parse(arguments.trim());
+            ArrayList<Task> matchingTasks = new ArrayList<>();
+            for (Task task : tasks) {
+                if (task.occursOn(date)) {
+                    matchingTasks.add(task);
+                }
+            }
+            ui.showTasksOnDate(matchingTasks, date);
+        } catch (DateTimeParseException exception) {
+            throw new DashException(
+                    "Please provide a valid date in yyyy-mm-dd format. Try: on 2019-10-15");
         }
     }
 

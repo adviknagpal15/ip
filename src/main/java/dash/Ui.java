@@ -1,6 +1,9 @@
 package dash;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 import dash.task.Task;
@@ -93,6 +96,24 @@ public class Ui {
      */
     public void showTaskList(List<Task> tasks) {
         System.out.println(" Here are the tasks in your list:");
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println(" " + (i + 1) + "." + tasks.get(i));
+        }
+    }
+
+    /**
+     * Displays tasks that occur on the specified date.
+     *
+     * @param tasks The tasks that occur on the date.
+     * @param date The date being queried.
+     */
+    public void showTasksOnDate(List<Task> tasks, LocalDate date) {
+        String formattedDate = date.format(DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH));
+        if (tasks.isEmpty()) {
+            System.out.println(" There are no tasks occurring on " + formattedDate + ".");
+            return;
+        }
+        System.out.println(" Here are the tasks occurring on " + formattedDate + ":");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println(" " + (i + 1) + "." + tasks.get(i));
         }

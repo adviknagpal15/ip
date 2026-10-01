@@ -1,5 +1,7 @@
 package dash.task;
 
+import java.time.LocalDate;
+
 /**
  * Represents one task and its completion state.
  */
@@ -52,6 +54,16 @@ public abstract class Task {
      */
     public String getStatusIcon() {
         return isDone ? "X" : " ";
+    }
+
+    /**
+     * Checks whether this task occurs on the specified date.
+     *
+     * @param date The date to check against.
+     * @return {@code true} if the task occurs on the specified date; {@code false} otherwise.
+     */
+    public boolean occursOn(LocalDate date) {
+        return false;
     }
 
     /**
