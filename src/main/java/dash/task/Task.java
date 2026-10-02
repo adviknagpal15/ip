@@ -67,6 +67,16 @@ public abstract class Task {
     }
 
     /**
+     * Checks whether this task's description contains the specified search keyword.
+     *
+     * @param keyword The keyword to search for.
+     * @return {@code true} if the description contains the keyword; {@code false} otherwise.
+     */
+    public boolean containsKeyword(String keyword) {
+        return description.toLowerCase().contains(keyword.toLowerCase());
+    }
+
+    /**
      * Returns the formatted string representation of this task for file storage.
      *
      * @return The string representation of this task to save to the hard disk.

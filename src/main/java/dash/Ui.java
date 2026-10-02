@@ -120,6 +120,22 @@ public class Ui {
     }
 
     /**
+     * Displays tasks that match the search keyword.
+     *
+     * @param matchingTasks The list of tasks matching the search criteria.
+     */
+    public void showMatchingTasks(List<Task> matchingTasks) {
+        if (matchingTasks.isEmpty()) {
+            System.out.println(" There are no matching tasks in your list.");
+            return;
+        }
+        System.out.println(" Here are the matching tasks in your list:");
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            System.out.println(" " + (i + 1) + "." + matchingTasks.get(i));
+        }
+    }
+
+    /**
      * Displays a confirmation message after a task is added.
      *
      * @param task The task that was added.

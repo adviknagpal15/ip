@@ -154,7 +154,7 @@ ____________________________________________________________
  A to-do needs a description. Try: todo borrow book
 ____________________________________________________________
 ____________________________________________________________
- I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, on, or bye.
+ I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, on, find, or bye.
 ____________________________________________________________
 ____________________________________________________________
  A deadline needs a /by date. Try: deadline return book /by 2019-10-15
@@ -298,6 +298,8 @@ on 2019-10-16
 on 2025-01-01
 on
 on not-a-date
+delete 2
+delete 1
 bye
 ```
 
@@ -341,6 +343,95 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Please provide a valid date in yyyy-mm-dd format. Try: on 2019-10-15
+____________________________________________________________
+____________________________________________________________
+ Noted. I've removed this task:
+   [E][ ] project conference (from: 2019-10-15 to: 2019-10-17)
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Noted. I've removed this task:
+   [D][ ] return book (by: Oct 15 2019)
+ Now you have 0 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
+## Test 6: Find tasks by keyword
+
+Aim: Verifies that the find command searches task descriptions for a keyword,
+displays matching tasks with their current completion status, handles cases
+with no matches, and rejects an empty keyword.
+
+### Input
+
+```text
+todo read book
+deadline return book /by 2019-10-15
+event book club /from Mon 6pm /to 8pm
+todo buy groceries
+mark 1
+find book
+find groceries
+find homework
+find
+bye
+```
+
+### Expected output
+
+```text
+ ____              _     
+|  _ \  __ _ ___| |__  
+| | | |/ _` / __| '_ \ 
+| |_| | (_| \__ \ | | |
+|____/ \__,_|___/_| |_|
+
+____________________________________________________________
+Hello! I'm Dash.
+What can I do for you?
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [D][ ] return book (by: Oct 15 2019)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [E][ ] book club (from: Mon 6pm to: 8pm)
+ Now you have 3 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] buy groceries
+ Now you have 4 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Nice! I've marked this task as done:
+   [T][X] read book
+____________________________________________________________
+____________________________________________________________
+ Here are the matching tasks in your list:
+ 1.[T][X] read book
+ 2.[D][ ] return book (by: Oct 15 2019)
+ 3.[E][ ] book club (from: Mon 6pm to: 8pm)
+____________________________________________________________
+____________________________________________________________
+ Here are the matching tasks in your list:
+ 1.[T][ ] buy groceries
+____________________________________________________________
+____________________________________________________________
+ There are no matching tasks in your list.
+____________________________________________________________
+____________________________________________________________
+ Please specify a keyword to search for. Try: find book
 ____________________________________________________________
 ____________________________________________________________
 Bye. Hope to see you again soon!
