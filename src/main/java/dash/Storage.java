@@ -81,6 +81,12 @@ public class Storage {
         }
     }
 
+    /**
+     * Parses a single encoded line from the storage file into a corresponding {@code Task}.
+     *
+     * @param line The serialized task line from the file.
+     * @return The reconstructed {@code Task}, or {@code null} if the line is corrupt or invalid.
+     */
     private Task parseTaskFromFile(String line) {
         if (line == null || line.isBlank()) {
             return null;

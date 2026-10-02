@@ -91,6 +91,12 @@ public class Dash {
         new Dash(DATA_FILE_PATH).run();
     }
 
+    /**
+     * Interprets and executes the specified user command.
+     *
+     * @param command The raw command string entered by the user.
+     * @throws DashException If the command is unrecognized or has invalid parameters.
+     */
     private void handleCommand(String command) throws DashException {
         String[] parts = command.split(" ", 2);
         String keyword = parts[0];
@@ -140,6 +146,12 @@ public class Dash {
         ui.showMatchingTasks(matchingTasks);
     }
 
+    /**
+     * Finds and displays tasks occurring on the specified date.
+     *
+     * @param arguments The date string in yyyy-mm-dd format.
+     * @throws DashException If the date argument is missing or not a valid date.
+     */
     private void findTasksOnDate(String arguments) throws DashException {
         if (arguments.isBlank()) {
             throw new DashException("Please specify a date in yyyy-mm-dd format. Try: on 2019-10-15");
@@ -159,12 +171,23 @@ public class Dash {
         }
     }
 
+    /**
+     * Appends a task to the list, displays a confirmation, and saves the task list to storage.
+     *
+     * @param task The task to add.
+     */
     private void addTask(Task task) {
         tasks.add(task);
         ui.showTaskAdded(task, tasks.size());
         saveTasks();
     }
 
+    /**
+     * Removes the task specified by the user's index argument and saves the updated list.
+     *
+     * @param arguments The 1-based task index string.
+     * @throws DashException If the index argument is missing, non-numeric, or out of range.
+     */
     private void deleteTask(String arguments) throws DashException {
         int taskIndex = getTaskIndex(arguments, tasks.size(), DELETE_COMMAND);
         Task removedTask = tasks.remove(taskIndex);
@@ -172,6 +195,13 @@ public class Dash {
         saveTasks();
     }
 
+    /**
+     * Updates the completion status of the specified task and saves the updated list.
+     *
+     * @param arguments The 1-based task index string.
+     * @param isDone {@code true} to mark as done; {@code false} to mark as not done.
+     * @throws DashException If the index argument is missing, non-numeric, or out of range.
+     */
     private void markTask(String arguments, boolean isDone) throws DashException {
         int taskIndex = getTaskIndex(arguments, tasks.size(), isDone ? MARK_COMMAND : UNMARK_COMMAND);
         Task task = tasks.get(taskIndex);
@@ -185,6 +215,15 @@ public class Dash {
         saveTasks();
     }
 
+    /**
+     * Parses and validates a 1-based task number argument into a 0-based index.
+     *
+     * @param arguments The user argument containing the task number.
+     * @param taskCount The current total number of tasks.
+     * @param command The name of the command requesting the index, used for error messaging.
+     * @return The 0-based index corresponding to the given task number.
+     * @throws DashException If the argument is blank, non-numeric, or out of bounds.
+     */
     private int getTaskIndex(String arguments, int taskCount, String command) throws DashException {
         if (arguments.isBlank()) {
             if (command.equals(DELETE_COMMAND)) {
@@ -206,6 +245,13 @@ public class Dash {
         }
     }
 
+    /**
+     * Parses the arguments for a to-do task and creates the corresponding {@code Todo}.
+     *
+     * @param arguments The description of the to-do task.
+     * @return The constructed {@code Todo} task.
+     * @throws DashException If the description is blank.
+     */
     private Todo createTodo(String arguments) throws DashException {
         String description = arguments.trim();
         if (description.isEmpty()) {
@@ -214,6 +260,13 @@ public class Dash {
         return new Todo(description);
     }
 
+    /**
+     * Parses the arguments for a deadline and creates the corresponding {@code Deadline}.
+     *
+     * @param arguments The deadline arguments containing the description and /by date.
+     * @return The constructed {@code Deadline} task.
+     * @throws DashException If description or date is missing, or date format is invalid.
+     */
     private Deadline createDeadline(String arguments) throws DashException {
         int byIndex = arguments.indexOf(BY_SEPARATOR);
         if (byIndex == -1) {
@@ -241,6 +294,13 @@ public class Dash {
         }
     }
 
+    /**
+     * Parses the arguments for an event and creates the corresponding {@code Event}.
+     *
+     * @param arguments The event arguments containing the description and /from /to times.
+     * @return The constructed {@code Event} task.
+     * @throws DashException If description, start time, or end time is missing or malformed.
+     */
     private Event createEvent(String arguments) throws DashException {
         int fromIndex = arguments.indexOf(FROM_SEPARATOR);
         int toIndex = arguments.indexOf(TO_SEPARATOR);
@@ -264,6 +324,9 @@ public class Dash {
         return new Event(description, from, to);
     }
 
+    /**
+     * Saves the current task list to storage and displays an error message if saving fails.
+     */
     private void saveTasks() {
         try {
             storage.save(tasks);
