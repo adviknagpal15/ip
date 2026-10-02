@@ -22,6 +22,7 @@ public class Dash {
     private static final String UNMARK_COMMAND = "unmark";
     private static final String DELETE_COMMAND = "delete";
     private static final String ON_COMMAND = "on";
+    private static final String FIND_COMMAND = "find";
     private static final String BY_SEPARATOR = " /by ";
     private static final String FROM_SEPARATOR = " /from ";
     private static final String TO_SEPARATOR = " /to ";
@@ -111,10 +112,32 @@ public class Dash {
             deleteTask(arguments);
         } else if (keyword.equals(ON_COMMAND)) {
             findTasksOnDate(arguments);
+        } else if (keyword.equals(FIND_COMMAND)) {
+            findTasks(arguments);
         } else {
-            throw new DashException(
-                    "I don't recognize that command. Try list, todo, deadline, event, mark, unmark, delete, on, or bye.");
+            throw new DashException("I don't recognize that command. "
+                    + "Try list, todo, deadline, event, mark, unmark, delete, on, find, or bye.");
         }
+    }
+
+    /**
+     * Finds and displays tasks matching the specified search keyword in their description.
+     *
+     * @param arguments The search query string.
+     * @throws DashException If the search query is blank.
+     */
+    private void findTasks(String arguments) throws DashException {
+        String query = arguments.trim();
+        if (query.isEmpty()) {
+            throw new DashException("Please specify a keyword to search for. Try: find book");
+        }
+        ArrayList<Task> matchingTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.containsKeyword(query)) {
+                matchingTasks.add(task);
+            }
+        }
+        ui.showMatchingTasks(matchingTasks);
     }
 
     private void findTasksOnDate(String arguments) throws DashException {
@@ -213,8 +236,8 @@ public class Dash {
             LocalDate byDate = LocalDate.parse(by);
             return new Deadline(description, byDate);
         } catch (DateTimeParseException exception) {
-            throw new DashException(
-                    "Please provide a valid date in yyyy-mm-dd format. Try: deadline return book /by 2019-10-15");
+            throw new DashException("Please provide a valid date in yyyy-mm-dd format. "
+                    + "Try: deadline return book /by 2019-10-15");
         }
     }
 
